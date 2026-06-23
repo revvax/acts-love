@@ -98,6 +98,39 @@ h1 .hl{background:linear-gradient(180deg,var(--amber),var(--np));-webkit-backgro
 .star{background:none;border:0;cursor:pointer;font-size:24px;line-height:1;color:rgba(244,236,219,.22);padding:0 1px;transition:transform .12s ease,color .14s,text-shadow .14s}
 .star:hover{transform:scale(1.2)}
 .star.on{color:var(--gold);text-shadow:0 0 12px rgba(243,194,75,.6)}
+.tracker{cursor:pointer}
+.tracker.rated-on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px rgba(243,194,75,.18)}
+.viewsw{display:flex;gap:8px;margin-top:16px}
+.vbtn{flex:1;font-family:inherit;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:11px;cursor:pointer;transition:.16s}
+.vbtn.on{background:linear-gradient(180deg,var(--gold),var(--gold-deep));border-color:var(--gold);color:#160f06;box-shadow:0 0 16px rgba(243,194,75,.3)}
+.tt-bar{display:flex;align-items:center;gap:10px;margin-top:16px}
+.tt-days{display:flex;gap:6px;flex:1;overflow-x:auto;padding-bottom:2px}
+.ttday{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:48px;font-family:inherit;color:var(--ink-dim);background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:7px 8px;cursor:pointer;transition:.16s}
+.ttday b{font-size:16px;font-weight:500;color:var(--ink);line-height:1}
+.ttday span{font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.ttday.on{background:linear-gradient(180deg,var(--gold),var(--gold-deep));border-color:var(--gold)}
+.ttday.on b,.ttday.on span{color:#160f06}
+.tt-star{flex:none;font-family:inherit;font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--ink-dim);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:9px 13px;cursor:pointer;white-space:nowrap}
+.tt-star.on{background:linear-gradient(180deg,var(--gold),var(--gold-deep));border-color:var(--gold);color:#160f06;box-shadow:0 0 16px rgba(243,194,75,.3)}
+.ttwrap{margin-top:14px;overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line2);border-radius:14px;background:var(--panel2);max-height:72vh}
+.tt-grid{position:relative;min-width:max-content}
+.tt-head{position:sticky;top:0;z-index:6;display:flex;height:34px;background:rgba(14,11,18,.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid var(--line2)}
+.tt-corner{position:sticky;left:0;z-index:7;width:96px;flex:none;background:rgba(14,11,18,.97);border-right:1px solid var(--line2)}
+.tt-times{position:relative;flex:none}
+.tt-time{position:absolute;top:0;height:34px;display:flex;align-items:center;padding-left:7px;font-size:10px;letter-spacing:.04em;color:var(--ink-faint);border-left:1px solid var(--line2)}
+.tt-row{display:flex;height:62px;border-bottom:1px solid var(--line2)}
+.tt-row:last-child{border-bottom:0}
+.tt-stage{position:sticky;left:0;z-index:5;width:96px;flex:none;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;color:var(--ink-dim);background:rgba(14,11,18,.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-right:1px solid var(--line2)}
+.tt-lane{position:relative;flex:none;height:62px;background-image:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px 96px)}
+.tt-blk{position:absolute;top:7px;height:48px;overflow:hidden;background:linear-gradient(180deg,rgba(243,194,75,.13),rgba(243,194,75,.04));border:1px solid var(--line);border-radius:9px;padding:5px 8px;cursor:pointer;transition:opacity .2s,box-shadow .2s,transform .12s}
+.tt-blk:hover{transform:translateY(-1px)}
+.tt-blk-nm{font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-blk-tm{font-size:9px;color:var(--ink-dim);margin-top:2px;white-space:nowrap}
+.tt-blk-rs{font-size:9px;color:var(--gold);margin-top:1px;letter-spacing:1px;white-space:nowrap}
+.tt-blk.rated{border-color:var(--gold);box-shadow:0 0 14px rgba(243,194,75,.28)}
+.tt-blk.dim{opacity:.2}
+.tt-empty{padding:30px 16px;color:var(--ink-faint);font-size:12px}
+.act.flash{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 30px rgba(243,194,75,.35)}
 footer{margin-top:28px;border-top:1px solid var(--line2);padding-top:18px;font-size:11px;color:var(--ink-faint);line-height:1.7}
 footer b{color:var(--ink-dim)}
 @media (prefers-reduced-motion:reduce){body::after,h1,.act.playing{animation:none}.act,.play,.fbtn,.star{transition:none}}
@@ -109,10 +142,16 @@ footer b{color:var(--ink-dim)}
 <div class="kicker">ФУЗИОН 2026 · Lärz · 24.–29.06</div>
 <h1>HÖR<span class="hl">PROBEN</span></h1>
 <div class="sub">Tipp auf <b>▶</b> — spielt sofort. Bewerte jeden Act mit <b>★</b> (1–5). <b>↗</b> = öffnet extern.</div>
-<div class="tracker">
+<div class="tracker" id="tracker" title="Tippen: nur deine bewerteten Acts">
 <div class="tracker-top"><span>Deine Wertungen</span><span class="t-val" id="rated"><b>0</b> / … bewertet</span></div>
 <div class="tracker-bar"><div class="tracker-fill" id="ratedfill"></div></div>
 </div>
+<div class="viewsw">
+<button id="vlist" class="vbtn on" type="button">Liste</button>
+<button id="vtt" class="vbtn" type="button">Timetable</button>
+</div>
+</header>
+<div id="listview">
 <div class="controls">
 <input id="search" class="search" type="search" placeholder="Act, Genre oder Stage suchen …" autocomplete="off">
 <select id="sort" class="sort" aria-label="Sortieren nach">
@@ -128,9 +167,13 @@ footer b{color:var(--ink-dim)}
 <div class="frow"><span class="frow-lbl">Stage</span><div class="dd"><button id="stagetoggle" class="fbtn dd-toggle" type="button" aria-expanded="false">Stages ▾</button><div class="dd-panel" id="stagerow" hidden></div></div></div>
 <button id="resetf" class="resetf" type="button" hidden>✕ Filter zurücksetzen</button>
 </div>
-</header>
 <div class="count" id="count">…</div>
 <div id="list"></div>
+</div>
+<div id="ttview" hidden>
+<div class="tt-bar"><div class="tt-days" id="ttdays"></div><button id="ttstar" class="tt-star" type="button" title="Nur bewertete Acts hervorheben">★ Bewertete</button></div>
+<div class="ttwrap" id="ttwrap"></div>
+</div>
 <footer>
 <p>Automatisch erzeugt aus der offiziellen Timetable-App. SoundCloud & YouTube spielen inline (auch via Künstler-Website), Bandcamp/Sonstige öffnen extern. Deine Sterne-Wertungen bleiben nur lokal auf diesem Gerät.</p>
 <p><b>Tipp:</b> In Safari unten „Teilen“ → „Zum Home-Bildschirm“.</p>
@@ -159,6 +202,19 @@ footer b{color:var(--ink-dim)}
   var TOP_GENRES = ["Techno", "Bass Music", "House", "Experimental & Avantgarde",
     "Post-Punk & Wave", "Pop & Indie", "Latin Bass & Cumbia", "Hip Hop & Rap",
     "Psytrance", "Breakbeat & Electro"];
+  // Ansicht (Liste/Timetable) + Zustände
+  var trackerEl = document.getElementById("tracker");
+  var listViewEl = document.getElementById("listview");
+  var ttViewEl = document.getElementById("ttview");
+  var vlistBtn = document.getElementById("vlist");
+  var vttBtn = document.getElementById("vtt");
+  var ttDaysEl = document.getElementById("ttdays");
+  var ttStarBtn = document.getElementById("ttstar");
+  var ttWrapEl = document.getElementById("ttwrap");
+  var ratedOnly = false;   // Klick auf Wertungs-Leiste: nur bewertete
+  var ttDay = "";          // gewählter Timetable-Tag
+  var ttStarOnly = false;  // im Timetable nur Bewertete hervorheben
+  var TT_PXMIN = 3.2; // px pro Minute (30-min-Spalte = 96px, passt zum Grid)
 
   /* ---- Profil (B-Version) + Rating, lokal im Browser gespeichert --------- */
   // B-Version (__BMODE__): jeder vergibt am Anfang einen Namen; die Wertungen
@@ -445,13 +501,14 @@ footer b{color:var(--ink-dim)}
     var shown = 0;
     sortedActs().forEach(function (act) {
       if (!matchesFilter(act)) return;
+      if (ratedOnly && !(ratings[rateKey(act)] > 0)) return;
       var hay = (act.artist + " " + (act.genre || "") + " " +
         act.shows.map(function (s) { return s.floor; }).join(" ")).toLowerCase();
       if (f && hay.indexOf(f) === -1) return;
       shown++;
       var src = playSrc(act);
       var ks = kind(act.sample);
-      var el = document.createElement("div"); el.className = "act";
+      var el = document.createElement("div"); el.className = "act"; el.id = "act-" + act.id;
       var top = document.createElement("div"); top.className = "act-top";
       var info = document.createElement("div"); info.className = "act-info";
       var name = document.createElement("div"); name.className = "act-name";
@@ -488,6 +545,104 @@ footer b{color:var(--ink-dim)}
     countEl.textContent = shown + (filtering ? " Acts gefunden" : " Acts mit Sample");
     if (resetEl) resetEl.hidden = !(daySel.size || genreSel.size || stageSel.size);
   }
+
+  /* ---- Ansicht: Liste / Timetable ------------------------------------- */
+  function setView(v) {
+    view = v;
+    var tt = v === "tt";
+    if (listViewEl) listViewEl.hidden = tt;
+    if (ttViewEl) ttViewEl.hidden = !tt;
+    if (vlistBtn) vlistBtn.classList.toggle("on", !tt);
+    if (vttBtn) vttBtn.classList.toggle("on", tt);
+    if (tt) { stopActive(); if (ttDaysEl && !ttDaysEl.children.length) buildTtDays(); renderTimetable(); }
+  }
+  function dateDiffDays(a, b) { return Math.round((Date.parse(a + "T12:00:00Z") - Date.parse(b + "T12:00:00Z")) / 86400000); }
+  function absMin(iso, dayStr) { return dateDiffDays(iso.slice(0, 10), dayStr) * 1440 + parseInt(iso.slice(11, 13), 10) * 60 + parseInt(iso.slice(14, 16), 10); }
+  function fmtMin(m) {
+    var h = Math.floor(m / 60) % 24; if (h < 0) h += 24;
+    var mm = ((m % 60) + 60) % 60;
+    return (h < 10 ? "0" : "") + h + ":" + (mm < 10 ? "0" : "") + mm;
+  }
+  function buildTtDays() {
+    var dayMap = {};
+    ACTS.forEach(function (a) { a.shows.forEach(function (s) { if (s.start) dayMap[s.start.slice(0, 10)] = true; }); });
+    var days = Object.keys(dayMap).sort();
+    if (!ttDay) ttDay = days[0];
+    days.forEach(function (d) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "ttday" + (d === ttDay ? " on" : "");
+      var num = document.createElement("b"); num.textContent = d.slice(8, 10);
+      var lab = document.createElement("span"); lab.textContent = WD[new Date(d + "T12:00:00Z").getUTCDay()];
+      b.appendChild(num); b.appendChild(lab);
+      b.addEventListener("click", function () {
+        ttDay = d;
+        for (var i = 0; i < ttDaysEl.children.length; i++) ttDaysEl.children[i].classList.remove("on");
+        b.classList.add("on"); renderTimetable();
+      });
+      ttDaysEl.appendChild(b);
+    });
+  }
+  function renderTimetable() {
+    if (!ttWrapEl) return;
+    ttWrapEl.innerHTML = "";
+    var items = [], stageSet = {};
+    ACTS.forEach(function (act) {
+      act.shows.forEach(function (s) {
+        if (!s.start || s.start.slice(0, 10) !== ttDay) return;
+        var f = (s.floor || "").trim() || "Sonstiges";
+        var sMin = absMin(s.start, ttDay);
+        var eMin = s.end ? absMin(s.end, ttDay) : sMin + 60;
+        if (eMin <= sMin) eMin = sMin + 60;
+        items.push({ act: act, floor: f, sMin: sMin, eMin: eMin });
+        stageSet[f] = true;
+      });
+    });
+    if (!items.length) { var em = document.createElement("div"); em.className = "tt-empty"; em.textContent = "Keine Acts an diesem Tag."; ttWrapEl.appendChild(em); return; }
+    var gridStart = Infinity, gridEnd = -Infinity;
+    items.forEach(function (o) { if (o.sMin < gridStart) gridStart = o.sMin; if (o.eMin > gridEnd) gridEnd = o.eMin; });
+    gridStart = Math.floor(gridStart / 30) * 30; gridEnd = Math.ceil(gridEnd / 30) * 30;
+    var laneW = (gridEnd - gridStart) * TT_PXMIN;
+    var stages = Object.keys(stageSet).sort(function (a, b) { return a.localeCompare(b, "de", { sensitivity: "base" }); });
+
+    var grid = document.createElement("div"); grid.className = "tt-grid";
+    var head = document.createElement("div"); head.className = "tt-head";
+    var corner = document.createElement("div"); corner.className = "tt-corner"; head.appendChild(corner);
+    var times = document.createElement("div"); times.className = "tt-times"; times.style.width = laneW + "px";
+    for (var t = gridStart; t <= gridEnd; t += 30) {
+      var tl = document.createElement("div"); tl.className = "tt-time"; tl.style.left = ((t - gridStart) * TT_PXMIN) + "px"; tl.textContent = fmtMin(t);
+      times.appendChild(tl);
+    }
+    head.appendChild(times); grid.appendChild(head);
+    stages.forEach(function (st) {
+      var row = document.createElement("div"); row.className = "tt-row";
+      var lbl = document.createElement("div"); lbl.className = "tt-stage"; lbl.textContent = st; row.appendChild(lbl);
+      var lane = document.createElement("div"); lane.className = "tt-lane"; lane.style.width = laneW + "px";
+      items.filter(function (o) { return o.floor === st; }).forEach(function (o) {
+        var r = ratings[rateKey(o.act)] || 0;
+        var blk = document.createElement("div"); blk.className = "tt-blk" + (r ? " rated" : "") + (ttStarOnly && !r ? " dim" : "");
+        blk.style.left = ((o.sMin - gridStart) * TT_PXMIN) + "px";
+        blk.style.width = Math.max(54, (o.eMin - o.sMin) * TT_PXMIN - 4) + "px";
+        var nm = document.createElement("div"); nm.className = "tt-blk-nm"; nm.textContent = o.act.artist; blk.appendChild(nm);
+        var tm = document.createElement("div"); tm.className = "tt-blk-tm"; tm.textContent = fmtMin(o.sMin) + "–" + fmtMin(o.eMin); blk.appendChild(tm);
+        if (r) { var rs = document.createElement("div"); rs.className = "tt-blk-rs"; var str = ""; for (var i = 0; i < r; i++) str += "★"; rs.textContent = str; blk.appendChild(rs); }
+        blk.title = o.act.artist + " · " + st + " · " + fmtMin(o.sMin) + "–" + fmtMin(o.eMin);
+        blk.addEventListener("click", function () { jumpToAct(o.act); });
+        lane.appendChild(blk);
+      });
+      row.appendChild(lane); grid.appendChild(row);
+    });
+    ttWrapEl.appendChild(grid);
+  }
+  function jumpToAct(act) {
+    if (searchEl) searchEl.value = "";
+    ratedOnly = false; if (trackerEl) trackerEl.classList.remove("rated-on");
+    daySel.clear(); genreSel.clear(); stageSel.clear();
+    var on = document.querySelectorAll(".fbtn.on"); for (var i = 0; i < on.length; i++) on[i].classList.remove("on");
+    updateStageLabel();
+    setView("list"); render("");
+    var el = document.getElementById("act-" + act.id);
+    if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1400); }
+  }
+
   if (searchEl) searchEl.addEventListener("input", function () { stopActive(); render(this.value); });
   if (sortEl) sortEl.addEventListener("change", function () { stopActive(); render(searchEl ? searchEl.value : ""); });
   if (resetEl) resetEl.addEventListener("click", clearFilters);
@@ -497,6 +652,10 @@ footer b{color:var(--ink-dim)}
     else stageRow.setAttribute("hidden", "");
     updateStageLabel();
   });
+  if (vlistBtn) vlistBtn.addEventListener("click", function () { setView("list"); });
+  if (vttBtn) vttBtn.addEventListener("click", function () { setView("tt"); });
+  if (ttStarBtn) ttStarBtn.addEventListener("click", function () { ttStarOnly = !ttStarOnly; ttStarBtn.classList.toggle("on", ttStarOnly); renderTimetable(); });
+  if (trackerEl) trackerEl.addEventListener("click", function () { ratedOnly = !ratedOnly; trackerEl.classList.toggle("rated-on", ratedOnly); render(searchEl ? searchEl.value : ""); });
   buildFilters();
   updateTracker();
   render("");
