@@ -790,7 +790,9 @@ footer b{color:var(--ink-dim)}
       var i = Math.floor((clientY - r.top) / (r.height / spans.length));
       i = Math.max(0, Math.min(spans.length - 1, i));
       jumpToLetter(spans[i].getAttribute("data-l"));
-      azbubEl.textContent = spans[i].getAttribute("data-l");
+      var _l = spans[i].getAttribute("data-l");
+      azbubEl.textContent = _l === "__end__" ? "Info" : _l;
+      azbubEl.style.fontSize = _l === "__end__" ? "22px" : "";
       var vh = window.innerHeight || 800;
       azbubEl.style.top = Math.max(50, Math.min(vh - 50, clientY)) + "px";
       azbubEl.classList.add("on"); azbarEl.classList.add("drag");
