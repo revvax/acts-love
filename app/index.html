@@ -25,7 +25,8 @@ body::after{content:"";position:fixed;top:-30%;left:-20%;width:140%;height:62%;z
 header{padding:30px 0 12px}
 .kicker{font-size:11px;letter-spacing:.32em;color:var(--gold);font-weight:500;text-transform:uppercase;display:flex;align-items:center;gap:10px}
 .kicker::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold-deep),transparent)}
-h1{font-family:"Massimo",sans-serif;font-weight:500;font-size:clamp(46px,13vw,92px);line-height:.92;text-transform:uppercase;margin:8px 0 0;letter-spacing:.01em;background:linear-gradient(180deg,#fff 0%,var(--gold) 56%,var(--gold-deep) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 20px rgba(243,194,75,.28))}
+h1{font-family:"Massimo",sans-serif;font-weight:500;font-size:clamp(46px,13vw,92px);line-height:.92;text-transform:uppercase;margin:8px 0 0;letter-spacing:.01em;background:linear-gradient(180deg,#fff 0%,var(--gold) 56%,var(--gold-deep) 100%);background-size:100% 220%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 20px rgba(243,194,75,.28));animation:shine 6s ease-in-out infinite}
+@keyframes shine{0%,100%{background-position:50% 0%;filter:drop-shadow(0 2px 18px rgba(243,194,75,.22))}50%{background-position:50% 100%;filter:drop-shadow(0 3px 30px rgba(243,194,75,.42))}}
 h1 .hl{background:linear-gradient(180deg,var(--amber),var(--np));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{font-size:13.5px;color:var(--ink-dim);margin-top:12px;line-height:1.6}
 .sub b{color:var(--ink);font-weight:500}
@@ -55,7 +56,8 @@ h1 .hl{background:linear-gradient(180deg,var(--amber),var(--np));-webkit-backgro
 .count::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 .act{border:1px solid var(--line2);border-radius:var(--r);background:linear-gradient(180deg,var(--panel),var(--panel2));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);margin-bottom:11px;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s}
 .act:hover{transform:translateY(-1px)}
-.act.playing{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 10px 44px rgba(243,194,75,.18)}
+.act.playing{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 10px 44px rgba(243,194,75,.18);animation:nowplaying 2.4s ease-in-out infinite}
+@keyframes nowplaying{0%,100%{box-shadow:0 0 0 1px var(--gold),0 8px 34px rgba(243,194,75,.14)}50%{box-shadow:0 0 0 1px var(--gold),0 12px 52px rgba(243,194,75,.3)}}
 .act-top{display:flex;align-items:center;gap:14px;padding:15px 16px}
 .act-info{min-width:0;flex:1}
 .act-name{font-family:"Massimo",sans-serif;font-weight:500;font-size:19px;color:#fff;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;letter-spacing:.01em}
@@ -100,7 +102,7 @@ h1 .hl{background:linear-gradient(180deg,var(--amber),var(--np));-webkit-backgro
 .star.on{color:var(--gold);text-shadow:0 0 12px rgba(243,194,75,.6)}
 footer{margin-top:28px;border-top:1px solid var(--line2);padding-top:18px;font-size:11px;color:var(--ink-faint);line-height:1.7}
 footer b{color:var(--ink-dim)}
-@media (prefers-reduced-motion:reduce){body::after{animation:none}.act,.play,.fbtn,.star{transition:none}}
+@media (prefers-reduced-motion:reduce){body::after,h1,.act.playing{animation:none}.act,.play,.fbtn,.star{transition:none}}
 </style>
 </head>
 <body>
