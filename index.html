@@ -139,6 +139,20 @@ body.tt-mode header,body.tt-mode #listview,body.tt-mode footer{display:none}
 body.tt-mode #ttview{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;padding:calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom))}
 body.tt-mode .tt-bar{margin-top:0;flex:none}
 body.tt-mode .ttwrap{flex:1;min-height:0;max-height:none;margin-top:10px}
+.ptr{position:fixed;top:0;left:50%;transform:translate(-50%,-100%);z-index:60;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.ptr.anim{transition:transform .25s ease}
+.ptr-c{width:18px;height:18px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%}
+.ptr.ready .ptr-c{border-top-color:var(--gold)}
+.ptr.spin .ptr-c{animation:spin .7s linear infinite}
+.totop{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--gold);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.totop.on{opacity:1;transform:none;pointer-events:auto}
+.totop-arr{font-size:16px;line-height:1}
+.totop-let{font-size:9px;font-weight:500;color:var(--ink-dim);margin-top:1px;min-height:9px}
+.azbar{position:fixed;right:2px;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;padding:6px 2px;touch-action:none}
+.azbar span{font-size:9px;line-height:1.3;color:var(--ink-faint);font-weight:500;padding:0 3px}
+.azbub{position:fixed;right:42px;top:50%;transform:translateY(-50%);z-index:31;width:64px;height:64px;border-radius:18px;background:rgba(20,14,26,.94);border:1px solid var(--gold);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-family:"Massimo",sans-serif;font-size:30px;color:var(--gold);opacity:0;pointer-events:none;transition:opacity .15s}
+.azbub.on{opacity:1}
+body.tt-mode .totop,body.tt-mode .azbar,body.tt-mode .azbub{display:none!important}
 footer{margin-top:28px;border-top:1px solid var(--line2);padding-top:18px;font-size:11px;color:var(--ink-faint);line-height:1.7}
 footer b{color:var(--ink-dim)}
 @media (prefers-reduced-motion:reduce){body::after,h1,.act.playing{animation:none}.act,.play,.fbtn,.star{transition:none}}
@@ -219,6 +233,7 @@ footer b{color:var(--ink-dim)}
   var ttDaysEl = document.getElementById("ttdays");
   var ttStarBtn = document.getElementById("ttstar");
   var ttWrapEl = document.getElementById("ttwrap");
+  var view = "list";       // aktuelle Ansicht: list | tt
   var ratedOnly = false;   // Klick auf Wertungs-Leiste: nur bewertete
   var ttDay = "";          // gewählter Timetable-Tag
   var ttStarOnly = false;  // im Timetable nur Bewertete hervorheben
@@ -480,7 +495,8 @@ footer b{color:var(--ink-dim)}
   // Sortierschlüssel des frühesten Auftritts (shows ist nach start sortiert)
   function firstStart(act) { return (act.shows[0] && act.shows[0].start) || "￿"; }
   function firstFloor(act) { return (act.shows[0] && act.shows[0].floor) || "￿"; }
-  function byName(a, b) { return a.artist.localeCompare(b.artist, "de", { sensitivity: "base" }); }
+  function sortKey(a) { return String(a.artist || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/^[^A-Za-z0-9]+/, "").toLowerCase(); }
+  function byName(a, b) { return sortKey(a).localeCompare(sortKey(b), "de", { sensitivity: "base" }); }
   function sortedActs() {
     var mode = sortEl ? sortEl.value : "az";
     var arr = ACTS.slice();
@@ -516,7 +532,7 @@ footer b{color:var(--ink-dim)}
       shown++;
       var src = playSrc(act);
       var ks = kind(act.sample);
-      var el = document.createElement("div"); el.className = "act"; el.id = "act-" + act.id;
+      var el = document.createElement("div"); el.className = "act"; el.id = "act-" + act.id; el.setAttribute("data-letter", letterOf(act.artist));
       var top = document.createElement("div"); top.className = "act-top";
       var info = document.createElement("div"); info.className = "act-info";
       var name = document.createElement("div"); name.className = "act-name";
@@ -552,6 +568,12 @@ footer b{color:var(--ink-dim)}
     var filtering = f || daySel.size || genreSel.size || stageSel.size;
     countEl.textContent = shown + (filtering ? " Acts gefunden" : " Acts mit Sample");
     if (resetEl) resetEl.hidden = !(daySel.size || genreSel.size || stageSel.size);
+    updateAz();
+  }
+  function letterOf(name) {
+    var s = String(name || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/^[^A-Za-z0-9]+/, "");
+    var ch = s.charAt(0).toUpperCase();
+    return /[A-Z]/.test(ch) ? ch : "#";
   }
 
   /* ---- Ansicht: Liste / Timetable ------------------------------------- */
@@ -652,6 +674,86 @@ footer b{color:var(--ink-dim)}
     if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1400); }
   }
 
+  /* ---- Pull-to-Refresh (Homescreen-App: runterziehen → neu laden) ------ */
+  function setupPullRefresh() {
+    var ind = document.createElement("div"); ind.className = "ptr";
+    var c = document.createElement("div"); c.className = "ptr-c"; ind.appendChild(c);
+    document.body.appendChild(ind);
+    var startY = 0, pulling = false, dist = 0, MAX = 110, TRIG = 60;
+    function atTop() { return ((window.scrollY || document.documentElement.scrollTop || 0) <= 0) && !document.body.classList.contains("tt-mode"); }
+    window.addEventListener("touchstart", function (e) {
+      ind.classList.remove("anim");
+      if (!atTop()) { pulling = false; return; }
+      startY = e.touches[0].clientY; pulling = true; dist = 0;
+    }, { passive: true });
+    window.addEventListener("touchmove", function (e) {
+      if (!pulling) return;
+      var dy = e.touches[0].clientY - startY;
+      if (dy <= 0 || !atTop()) { pulling = false; ind.style.transform = "translate(-50%,-100%)"; ind.classList.remove("ready"); return; }
+      e.preventDefault();
+      dist = Math.min(MAX, dy * 0.5);
+      ind.style.transform = "translate(-50%," + (dist - 20) + "px)";
+      c.style.transform = "rotate(" + (dist * 3) + "deg)";
+      ind.classList.toggle("ready", dist >= TRIG);
+    }, { passive: false });
+    window.addEventListener("touchend", function () {
+      if (!pulling) return; pulling = false;
+      ind.classList.add("anim");
+      if (dist >= TRIG) { ind.classList.add("spin"); ind.style.transform = "translate(-50%,20px)"; setTimeout(function () { location.reload(); }, 350); }
+      else { ind.style.transform = "translate(-50%,-100%)"; ind.classList.remove("ready"); }
+    }, { passive: true });
+  }
+
+  /* ---- Listen-Navi: Pfeil nach oben + A–Z-Schnellscroll ---------------- */
+  var azbarEl = null, totopEl = null, totopLetEl = null, azbubEl = null;
+  function setupListNav() {
+    totopEl = document.createElement("button"); totopEl.className = "totop"; totopEl.type = "button";
+    var arr = document.createElement("span"); arr.className = "totop-arr"; arr.textContent = "↑"; totopEl.appendChild(arr);
+    totopLetEl = document.createElement("span"); totopLetEl.className = "totop-let"; totopEl.appendChild(totopLetEl);
+    totopEl.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+    document.body.appendChild(totopEl);
+    azbarEl = document.createElement("div"); azbarEl.className = "azbar"; document.body.appendChild(azbarEl);
+    azbubEl = document.createElement("div"); azbubEl.className = "azbub"; document.body.appendChild(azbubEl);
+    function handle(clientY) {
+      var spans = azbarEl.querySelectorAll("[data-l]"); if (!spans.length) return;
+      var r = azbarEl.getBoundingClientRect();
+      var i = Math.floor((clientY - r.top) / (r.height / spans.length));
+      i = Math.max(0, Math.min(spans.length - 1, i));
+      var L = spans[i].getAttribute("data-l");
+      jumpToLetter(L); azbubEl.textContent = L; azbubEl.classList.add("on");
+    }
+    azbarEl.addEventListener("touchstart", function (e) { e.preventDefault(); handle(e.touches[0].clientY); }, { passive: false });
+    azbarEl.addEventListener("touchmove", function (e) { e.preventDefault(); handle(e.touches[0].clientY); }, { passive: false });
+    azbarEl.addEventListener("touchend", function () { azbubEl.classList.remove("on"); });
+    azbarEl.addEventListener("mousedown", function (e) { handle(e.clientY); });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+  function onScroll() {
+    if (!totopEl) return;
+    var down = (window.scrollY || 0) > 500 && view === "list";
+    totopEl.classList.toggle("on", down);
+    if (down) {
+      var cards = listEl.children, cur = "";
+      for (var i = 0; i < cards.length; i++) { var rc = cards[i].getBoundingClientRect(); if (rc.bottom > 90) { cur = cards[i].getAttribute("data-letter") || ""; break; } }
+      totopLetEl.textContent = cur;
+    }
+  }
+  function updateAz() {
+    if (!azbarEl) return;
+    var show = view === "list" && sortEl && sortEl.value === "az";
+    azbarEl.style.display = show ? "" : "none";
+    if (!show) { azbarEl.innerHTML = ""; return; }
+    var seen = {}, order = [], cards = listEl.children;
+    for (var i = 0; i < cards.length; i++) { var L = cards[i].getAttribute("data-letter") || "#"; if (!seen[L]) { seen[L] = 1; order.push(L); } }
+    azbarEl.innerHTML = "";
+    order.forEach(function (L) { var s = document.createElement("span"); s.setAttribute("data-l", L); s.textContent = L; azbarEl.appendChild(s); });
+  }
+  function jumpToLetter(L) {
+    var card = listEl.querySelector('.act[data-letter="' + L + '"]');
+    if (card) window.scrollTo(0, card.getBoundingClientRect().top + (window.scrollY || 0) - 70);
+  }
+
   if (searchEl) searchEl.addEventListener("input", function () { stopActive(); render(this.value); });
   if (sortEl) sortEl.addEventListener("change", function () { stopActive(); render(searchEl ? searchEl.value : ""); });
   if (resetEl) resetEl.addEventListener("click", clearFilters);
@@ -668,9 +770,11 @@ footer b{color:var(--ink-dim)}
   if (ttStarBtn) ttStarBtn.addEventListener("click", function () { ttStarOnly = !ttStarOnly; ttStarBtn.classList.toggle("on", ttStarOnly); renderTimetable(); });
   if (trackerEl) trackerEl.addEventListener("click", function () { ratedOnly = !ratedOnly; trackerEl.classList.toggle("rated-on", ratedOnly); render(searchEl ? searchEl.value : ""); });
   buildFilters();
+  setupListNav();
   updateTracker();
   render("");
   setupBMode();
+  setupPullRefresh();
 })();</script>
 </body>
 </html>
