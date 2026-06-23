@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0c0910">
 
 <title>Nachtorbit</title>
+<script data-goatcounter="https://revax.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>
 @font-face{font-family:"Massimo";src:url("appfont-500.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
 @font-face{font-family:"Massimo";src:url("appfont-700.woff2") format("woff2");font-weight:700 900;font-style:normal;font-display:swap}
@@ -213,6 +214,7 @@ footer b{color:var(--ink-dim)}
 <p>Die Programm-Infos stammen von der offiziellen Fusion-Website. Alle Texte sind KI-generiert — nichts kopiert, nur von der offiziellen Seite inspiriert.</p>
 <p>Kein kommerzielles Ziel: Die App soll der Community helfen, ihre Lieblings-Acts zur richtigen Zeit zu erwischen und neue zu entdecken. Inoffiziell, keine Verbindung zur Fusion / Kulturkosmos e.V.</p>
 <p>Code &amp; Pull Requests: <a href="https://github.com/revvax/nachtorbit" target="_blank" rel="noopener">github.com/revvax/nachtorbit</a></p>
+<p>Anonyme Statistik Ã¼ber GoatCounter â ohne Cookies, ohne Standort. GezÃ¤hlt wird nur, wie viele GerÃ¤te vorbeischauen.</p>
 </div>
 </footer>
 </div>
@@ -508,8 +510,8 @@ footer b{color:var(--ink-dim)}
     return false;
   }
   // Sortierschlüssel des frühesten Auftritts (shows ist nach start sortiert)
-  function firstStart(act) { return (act.shows[0] && act.shows[0].start) || "￿"; }
-  function firstFloor(act) { return (act.shows[0] && act.shows[0].floor) || "￿"; }
+  function firstStart(act) { return (act.shows[0] && act.shows[0].start) || "\xEF\xBF\xBF"; }
+  function firstFloor(act) { return (act.shows[0] && act.shows[0].floor) || "\xEF\xBF\xBF"; }
   function sortKey(a) { return String(a.artist || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/^[^A-Za-z0-9]+/, "").toLowerCase(); }
   function byName(a, b) { return sortKey(a).localeCompare(sortKey(b), "de", { sensitivity: "base" }); }
   function sortedActs() {
