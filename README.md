@@ -1,10 +1,10 @@
-# ACTS. LOVE.
+# Nachtorbit
 
 Persönlicher Festival-Planer mit Hörproben, Sterne-Wertung und Timetable — als installierbare Web-App, offline nutzbar.
 
-In ~4 Stunden in Hamburg vibe-coded von **REVVAX**.
+Aus Hamburg, 2026, von **REVVAX**.
 
-**Live:** https://revvax.github.io/acts-love/app/
+**Live:** https://revvax.github.io/nachtorbit/app/
 
 ## Features
 - Hörproben: SoundCloud & YouTube spielen inline
