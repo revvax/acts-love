@@ -42,6 +42,10 @@ h1 .hl{color:var(--red)}
 .fbtn.on{background:var(--red);border-color:var(--red);color:#0d0d0d}
 .resetf{align-self:flex-start;margin-left:50px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);background:none;border:0;cursor:pointer;padding:0}
 .resetf:hover{color:var(--red)}
+.dd{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.dd-toggle{font-weight:700}
+.dd-panel{margin-top:8px;width:100%;display:flex;flex-wrap:wrap;gap:6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);max-height:46vh;overflow:auto}
+.dd-panel[hidden]{display:none}
 .count{margin:18px 2px 12px;font-size:10.5px;letter-spacing:.28em;color:var(--ink-faint);text-transform:uppercase;display:flex;align-items:center;gap:10px}
 .count::after{content:"";flex:1;height:1px;background:var(--line)}
 .act{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--panel),var(--bg2));margin-bottom:10px;overflow:hidden;transition:border-color .18s}
@@ -101,7 +105,8 @@ footer b{color:var(--ink-dim)}
 </div>
 <div class="filters">
 <div class="frow"><span class="frow-lbl">Tag</span><span class="fwrap" id="dayrow"></span></div>
-<div class="frow"><span class="frow-lbl">Stage</span><span class="fwrap" id="stagerow"></span></div>
+<div class="frow"><span class="frow-lbl">Genre</span><span class="fwrap" id="genrerow"></span></div>
+<div class="frow"><span class="frow-lbl">Stage</span><div class="dd"><button id="stagetoggle" class="fbtn dd-toggle" type="button" aria-expanded="false">Stages ▾</button><div class="dd-panel" id="stagerow" hidden></div></div></div>
 <button id="resetf" class="resetf" type="button" hidden>✕ Filter zurücksetzen</button>
 </div>
 </header>
@@ -121,11 +126,20 @@ footer b{color:var(--ink-dim)}
   var fillEl = document.getElementById("ratedfill");
   var sortEl = document.getElementById("sort");
   var dayRow = document.getElementById("dayrow");
+  var genreRow = document.getElementById("genrerow");
   var stageRow = document.getElementById("stagerow");
+  var stageToggle = document.getElementById("stagetoggle");
   var resetEl = document.getElementById("resetf");
   var daySel = new Set();    // ausgewählte Tage (Datum YYYY-MM-DD)
+  var genreSel = new Set();  // ausgewählte Genres (Token aus dem genre-String)
   var stageSel = new Set();  // ausgewählte Stages (Floor-Name oder "__other__")
   var active = null;
+  // Kuratierte Top-Genres: die größten nach Häufigkeit + die genannten
+  // (Psytrance = Trance, Breakbeat & Electro = Elektro). Muss exakt den Tokens
+  // im genre-String entsprechen.
+  var TOP_GENRES = ["Techno", "Bass Music", "House", "Experimental & Avantgarde",
+    "Post-Punk & Wave", "Pop & Indie", "Latin Bass & Cumbia", "Hip Hop & Rap",
+    "Psytrance", "Breakbeat & Electro"];
 
   /* ---- Rating: 1–5 Sterne, lokal im Browser gespeichert ------------------ */
   var RKEY = "fusionRatings2026";
@@ -257,7 +271,7 @@ footer b{color:var(--ink-dim)}
 
   /* ---- Filter: Tag-Buttons + Stage-Buttons (Mehrfachauswahl) ----------- */
   function buildFilters() {
-    var dayMap = {}, stageMap = {}, hasOther = false;
+    var dayMap = {}, stageMap = {}, genrePresent = {}, hasOther = false;
     ACTS.forEach(function (act) {
       if (!act.shows.length) hasOther = true;
       act.shows.forEach(function (s) {
@@ -265,14 +279,23 @@ footer b{color:var(--ink-dim)}
         var f = (s.floor || "").trim();
         if (f) stageMap[f] = true; else hasOther = true;
       });
+      (act.genre || "").split(" · ").forEach(function (t) { genrePresent[t.trim()] = true; });
     });
     Object.keys(dayMap).sort().forEach(function (d) {
       var wd = WD[new Date(d + "T12:00:00Z").getUTCDay()];
       addBtn(dayRow, daySel, d, wd + " " + d.slice(8, 10) + ".");
     });
+    TOP_GENRES.forEach(function (g) { if (genrePresent[g]) addBtn(genreRow, genreSel, g, g); });
     var stages = Object.keys(stageMap).sort(function (a, b) { return a.localeCompare(b, "de", { sensitivity: "base" }); });
     if (hasOther) stages.push("__other__");
     stages.forEach(function (st) { addBtn(stageRow, stageSel, st, st === "__other__" ? "Sonstiges" : st); });
+    updateStageLabel();
+  }
+  function updateStageLabel() {
+    if (!stageToggle) return;
+    var open = stageRow && !stageRow.hasAttribute("hidden");
+    stageToggle.textContent = "Stages" + (stageSel.size ? " (" + stageSel.size + ")" : "") + (open ? " ▴" : " ▾");
+    stageToggle.classList.toggle("on", stageSel.size > 0);
   }
   function addBtn(row, set, val, label) {
     if (!row) return;
@@ -280,18 +303,25 @@ footer b{color:var(--ink-dim)}
     b.addEventListener("click", function () {
       if (set.has(val)) { set.delete(val); b.classList.remove("on"); }
       else { set.add(val); b.classList.add("on"); }
+      updateStageLabel();
       stopActive(); render(searchEl ? searchEl.value : "");
     });
     row.appendChild(b);
   }
   function clearFilters() {
-    daySel.clear(); stageSel.clear();
+    daySel.clear(); genreSel.clear(); stageSel.clear();
     var on = document.querySelectorAll(".fbtn.on");
     for (var i = 0; i < on.length; i++) on[i].classList.remove("on");
+    updateStageLabel();
     stopActive(); render(searchEl ? searchEl.value : "");
   }
   // Act sichtbar, wenn ein Auftritt sowohl zum Tag- als auch zum Stage-Filter passt.
   function matchesFilter(act) {
+    if (genreSel.size) {
+      var toks = (act.genre || "").split(" · "), gOk = false;
+      for (var j = 0; j < toks.length; j++) { if (genreSel.has(toks[j].trim())) { gOk = true; break; } }
+      if (!gOk) return false;
+    }
     if (!daySel.size && !stageSel.size) return true;
     if (!act.shows.length) return !daySel.size && (!stageSel.size || stageSel.has("__other__"));
     for (var i = 0; i < act.shows.length; i++) {
@@ -374,13 +404,19 @@ footer b{color:var(--ink-dim)}
       el.appendChild(buildStars(act));
       listEl.appendChild(el);
     });
-    var filtering = f || daySel.size || stageSel.size;
+    var filtering = f || daySel.size || genreSel.size || stageSel.size;
     countEl.textContent = shown + (filtering ? " Acts gefunden" : " Acts mit Sample");
-    if (resetEl) resetEl.hidden = !(daySel.size || stageSel.size);
+    if (resetEl) resetEl.hidden = !(daySel.size || genreSel.size || stageSel.size);
   }
   if (searchEl) searchEl.addEventListener("input", function () { stopActive(); render(this.value); });
   if (sortEl) sortEl.addEventListener("change", function () { stopActive(); render(searchEl ? searchEl.value : ""); });
   if (resetEl) resetEl.addEventListener("click", clearFilters);
+  if (stageToggle) stageToggle.addEventListener("click", function () {
+    if (!stageRow) return;
+    if (stageRow.hasAttribute("hidden")) stageRow.removeAttribute("hidden");
+    else stageRow.setAttribute("hidden", "");
+    updateStageLabel();
+  });
   buildFilters();
   updateTracker();
   render("");
