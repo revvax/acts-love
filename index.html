@@ -617,7 +617,7 @@ footer b{color:var(--ink-dim)}
     var days = Object.keys(dayMap).sort();
     if (!ttDay) ttDay = days[0];
     days.forEach(function (d) {
-      var b = document.createElement("button"); b.type = "button"; b.className = "ttday" + (d === ttDay ? " on" : "");
+      var b = document.createElement("button"); b.type = "button"; b.className = "ttday" + (d === ttDay ? " on" : ""); b.setAttribute("data-day", d);
       var num = document.createElement("b"); num.textContent = d.slice(8, 10);
       var lab = document.createElement("span"); lab.textContent = WD[new Date(d + "T12:00:00Z").getUTCDay()];
       b.appendChild(num); b.appendChild(lab);
@@ -629,19 +629,59 @@ footer b{color:var(--ink-dim)}
       ttDaysEl.appendChild(b);
     });
   }
+  function dayHasRated(dayStr) {
+    for (var i = 0; i < ACTS.length; i++) {
+      var a = ACTS[i]; if (!(ratings[rateKey(a)] > 0)) continue;
+      for (var j = 0; j < a.shows.length; j++) {
+        var s = a.shows[j]; if (!s.start) continue;
+        var sd = s.start.slice(0, 10), ed = s.end ? s.end.slice(0, 10) : sd;
+        if (sd === dayStr) return true;
+        if (ed === dayStr && sd < dayStr && absMin(s.end, dayStr) > 0) return true;
+      }
+    }
+    return false;
+  }
   function renderTimetable() {
     if (!ttWrapEl) return;
     ttWrapEl.innerHTML = "";
+    // Bei 'bewertet'-Filter: Tage ohne bewertete Acts ausblenden, ggf. auf ersten sichtbaren wechseln
+    if (ttDaysEl) {
+      var dbtns = ttDaysEl.children;
+      for (var di = 0; di < dbtns.length; di++) {
+        var dd = dbtns[di].getAttribute("data-day");
+        dbtns[di].style.display = (!ttStarOnly || dayHasRated(dd)) ? "" : "none";
+      }
+      if (ttStarOnly) {
+        var cur = null;
+        for (var ci = 0; ci < dbtns.length; ci++) if (dbtns[ci].getAttribute("data-day") === ttDay) cur = dbtns[ci];
+        if (!cur || cur.style.display === "none") {
+          for (var fi = 0; fi < dbtns.length; fi++) if (dbtns[fi].style.display !== "none") {
+            ttDay = dbtns[fi].getAttribute("data-day");
+            for (var zi = 0; zi < dbtns.length; zi++) dbtns[zi].classList.remove("on");
+            dbtns[fi].classList.add("on"); break;
+          }
+        }
+      }
+    }
     var items = [], stageSet = {};
     ACTS.forEach(function (act) {
+      var rr = ratings[rateKey(act)] || 0;
+      if (ttStarOnly && !rr) return;                 // bewertet-Filter: Unbewertete ganz raus
       act.shows.forEach(function (s) {
-        if (!s.start || s.start.slice(0, 10) !== ttDay) return;
+        if (!s.start) return;
         var f = (s.floor || "").trim() || "Sonstiges";
-        var sMin = absMin(s.start, ttDay);
-        var eMin = s.end ? absMin(s.end, ttDay) : sMin + 60;
-        if (eMin <= sMin) eMin = sMin + 60;
-        items.push({ act: act, floor: f, sMin: sMin, eMin: eMin });
-        stageSet[f] = true;
+        var sd = s.start.slice(0, 10), ed = s.end ? s.end.slice(0, 10) : sd;
+        if (sd === ttDay) {
+          var sMin = absMin(s.start, ttDay);
+          var eMin = s.end ? absMin(s.end, ttDay) : sMin + 60;
+          if (eMin <= sMin) eMin = sMin + 60;
+          if (eMin > 1440) eMin = 1440;              // 0 Uhr = Schnitt, Rest am Folgetag
+          items.push({ act: act, floor: f, sMin: sMin, eMin: eMin });
+          stageSet[f] = true;
+        } else if (ed === ttDay && sd < ttDay) {     // Fortsetzung nach Mitternacht -> ab 00:00 am Folgetag
+          var eMin2 = absMin(s.end, ttDay);
+          if (eMin2 > 0) { items.push({ act: act, floor: f, sMin: 0, eMin: Math.min(eMin2, 1440) }); stageSet[f] = true; }
+        }
       });
     });
     if (!items.length) { var em = document.createElement("div"); em.className = "tt-empty"; em.textContent = "Keine Acts an diesem Tag."; ttWrapEl.appendChild(em); return; }
